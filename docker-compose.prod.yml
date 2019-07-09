@@ -1,0 +1,62 @@
+version: "3.6"
+services:
+  db:
+    image: postgres:9.4
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432"
+    environment:
+      - POSTGRES_USER=hermes
+      - POSTGRES_PASSWORD=hermes
+    networks:
+      - hermes
+    restart: "on-failure"
+
+  db-manager:
+    build:
+      context: ./db-manager
+      target: production
+    ports:
+      - "8080"
+    networks:
+      - hermes
+    volumes:
+      - ./logs/db-manager/:/app/logs
+    restart: "on-failure"
+    depends_on:
+      - db
+
+  event-broker:
+    image: redis
+    ports:
+      - "6379"
+    networks:
+      - hermes
+    restart: "on-failure"
+
+  conductor:
+    build:
+      context: ./conductor
+      target: production
+    environment:
+      - DOCKER_BINARY_PATH=/usr/local/bin/docker
+    ports:
+      - 9090:3000
+    networks:
+      - hermes
+    volumes:
+      - ./logs/conductor/:/app/logs
+      - ./results:/app/results
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: "on-failure"
+    depends_on:
+      - event-broker
+      - db-manager
+
+volumes:
+  pgdata:
+
+networks:
+  hermes:
+    external: true
