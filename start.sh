@@ -28,11 +28,11 @@ if [ "$MIGRATE" == "true" ] || [ "$SEED" == "true" ]; then
   docker-compose $DOCKER_COMPOSE_OPTS up -d db  
   
   if [ "$MIGRATE" == "true" ]; then
-    docker run --network=hermes --rm -it hermeshub/db-migrator ./scripts/migrate.sh development
+    docker run --network=hermes --rm -it hermeshub/db-migrator ./scripts/migrate.sh -e development
   fi
 
   if [ "$SEED" == "true" ]; then
-    docker run --network=hermes --rm -it hermeshub/db-migrator ./scripts/seed.sh development
+    docker run --network=hermes --rm -it hermeshub/db-migrator ./scripts/seed.sh -e development
   fi
 
   docker-compose $DOCKER_COMPOSE_OPTS down
