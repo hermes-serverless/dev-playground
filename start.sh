@@ -24,8 +24,8 @@ docker network create hermes || true
 DOCKER_COMPOSE_OPTS="-p hermes -f docker-compose.dev.yml"
 
 if [ "$MIGRATE" == "true" ] || [ "$SEED" == "true" ]; then
-  docker build -t hermeshub/db-migrator --target=migrator ./db-manager
-  docker-compose $DOCKER_COMPOSE_OPTS up -d db  
+  docker build -t hermeshub/db-migrator --target=migrator ./function-registry-api/packages/function-registry-api
+  docker-compose $DOCKER_COMPOSE_OPTS up -d function-registry-db
   
   if [ "$MIGRATE" == "true" ]; then
     docker run --network=hermes --rm -it hermeshub/db-migrator ./scripts/migrate.sh -e development

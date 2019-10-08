@@ -1,6 +1,6 @@
 version: "3.6"
 services:
-  db:
+  function-registry-db:
     image: postgres:9.4
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -13,21 +13,21 @@ services:
       - hermes
     restart: "on-failure"
 
-  db-manager:
+  function-registry-api:
     build:
-      context: ./db-manager
+      context: ./function-registry-api/packages/function-registry-api
       target: production
     ports:
       - "8080"
     networks:
       - hermes
     volumes:
-      - ./logs/db-manager/:/app/logs
+      - ./logs/function-registry-api/:/app/logs
     restart: "on-failure"
     depends_on:
-      - db
+      - function-registry-db
 
-  event-broker:
+  function-lifecycle-broker:
     image: redis
     ports:
       - "6379"
@@ -35,9 +35,9 @@ services:
       - hermes
     restart: "on-failure"
 
-  conductor:
+  function-orchestrator:
     build:
-      context: ./conductor
+      context: ./function-orchestrator
       target: production
     environment:
       - DOCKER_BINARY_PATH=/usr/local/bin/docker
@@ -46,13 +46,13 @@ services:
     networks:
       - hermes
     volumes:
-      - ./logs/conductor/:/app/logs
+      - ./logs/function-orchestrator/:/app/logs
       - ./results:/app/results
       - /var/run/docker.sock:/var/run/docker.sock
     restart: "on-failure"
     depends_on:
-      - event-broker
-      - db-manager
+      - function-lifecycle-broker
+      - function-registry-api
 
 volumes:
   pgdata:

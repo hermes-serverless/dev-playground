@@ -1,5 +1,5 @@
-conductor
-db-manager
+function-orchestrator
+function-registry-api
 function-watcher
 logs
 results
